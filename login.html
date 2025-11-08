@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login-container">
+    <img src="images/logo.jpeg" class="logo" alt="Logo">
+    <h1 class="title">تسجيل الدخول</h1>
+    <p class="intro">استخدم رقم الموبايل الموبوط بحسابك</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="number"> رقم الموبايل</label>
+        <input type="tel" id="number" name="number" placeholder="01X XXXX XXXX" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">كلمة السر</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="login-button">تسجيل الدخول</button>
+    </form>
+
+    <p class="cta-text">
+  <a href="forgetPassword.html" id="forgetPassLink">نسيت كلمة السر؟</a>
+</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

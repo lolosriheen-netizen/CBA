@@ -51,7 +51,7 @@ if (loginForm) {
       
       setTimeout(() => {
       window.location.href = 'otp.html';
-             }, 3000);
+             }, 1500);
 
     } catch (err) {
       console.error("Fetch error:", err);
@@ -71,7 +71,7 @@ if (forgetPassLink) {
     // continue navigation normally
     setTimeout(() => {
     window.location.href = 'forgetPassword.html';
-    }, 3000);
+    }, 1500);
     e.preventDefault();
   });
 }

